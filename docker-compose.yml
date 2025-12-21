@@ -1,0 +1,63 @@
+services:
+  db:
+    image: postgres:15
+    container_name: skillset-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: kratos
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  kratos-migrate:
+    image: oryd/kratos:v1.3.1
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - DSN=postgres://postgres:password@db:5432/kratos?sslmode=disable
+    command: migrate sql -e --yes
+    volumes:
+      - ./auth/kratos.yml:/etc/config/kratos/kratos.yml
+      - ./auth/identity.schema.json:/etc/config/kratos/identity.schema.json
+
+  kratos:
+    image: oryd/kratos:v1.3.1
+    container_name: skillset-kratos
+    depends_on:
+      kratos-migrate:
+        condition: service_completed_successfully
+    environment:
+      - DSN=postgres://postgres:password@db:5432/kratos?sslmode=disable
+      - LOG_LEVEL=debug
+    command: serve --dev -c /etc/config/kratos/kratos.yml
+    volumes:
+      - ./auth/kratos.yml:/etc/config/kratos/kratos.yml
+      - ./auth/identity.schema.json:/etc/config/kratos/identity.schema.json
+    ports:
+      - "4434:4434" # Admin API for creating users
+    restart: unless-stopped
+
+  proxy:
+    image: node:20-alpine
+    container_name: skillset-proxy
+    working_dir: /app
+    depends_on:
+      - kratos
+    volumes:
+      - ./auth/proxy:/app
+    command: sh -c "npm install && node server.js"
+    ports:
+      - "3000:3000"
+    environment:
+      - KRATOS_URL=http://kratos:4433
+    restart: unless-stopped
+
+volumes:
+  pgdata:

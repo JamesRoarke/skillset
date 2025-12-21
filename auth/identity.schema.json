@@ -1,0 +1,37 @@
+{
+  "$id": "https://skillset.local/identity.schema.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Default Identity",
+  "type": "object",
+  "properties": {
+    "traits": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "email",
+          "title": "Email",
+          "ory.sh/kratos": {
+            "credentials": {
+              "password": {
+                "identifier": true
+              }
+            }
+          }
+        },
+        "name": {
+          "type": "string",
+          "title": "Full Name"
+        },
+        "role": {
+          "type": "string",
+          "enum": ["user", "admin"],
+          "default": "user",
+          "title": "Role"
+        }
+      },
+      "required": ["email", "name"],
+      "additionalProperties": false
+    }
+  }
+}

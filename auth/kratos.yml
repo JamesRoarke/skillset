@@ -1,0 +1,100 @@
+version: v1.3.1
+
+dsn: postgres://postgres:password@db:5432/kratos?sslmode=disable
+
+serve:
+  public:
+    base_url: http://kratos:4433/
+    cors:
+      enabled: true
+      allowed_origins:
+        - http://localhost:8081
+        - http://192.168.1.67:8081
+        - http://localhost:4455
+        - http://localhost:19006
+        - http://127.0.0.1:19006
+      allowed_methods:
+        - GET
+        - POST
+        - PUT
+        - PATCH
+        - DELETE
+        - OPTIONS
+      allowed_headers:
+        - Authorization
+        - Content-Type
+        - X-Session-Token
+        - Accept
+      exposed_headers:
+        - Content-Type
+        - Set-Cookie
+      allow_credentials: true
+      debug: true
+
+  admin:
+    base_url: http://0.0.0.0:4434/
+
+selfservice:
+  default_browser_return_url: http://localhost:8081/home
+  allowed_return_urls:
+    - http://localhost:8081/
+    - http://localhost:8081/home
+    - http://192.168.1.67:8081/
+    - http://192.168.1.67:8081/home
+
+  methods:
+    password:
+      enabled: true
+
+  flows:
+    login:
+      ui_url: http://localhost:8081/login
+      lifespan: 10m
+      after:
+        default_browser_return_url: http://localhost:8081/home
+    registration:
+      ui_url: http://localhost:8081/signup
+      lifespan: 10m
+      after:
+        default_browser_return_url: http://localhost:8081/home
+        password:
+          hooks: []
+    settings:
+      ui_url: http://localhost:8081/settings
+    verification:
+      enabled: false
+    recovery:
+      enabled: false
+
+identity:
+  default_schema_id: default
+  schemas:
+    - id: default
+      url: file:///etc/config/kratos/identity.schema.json
+
+log:
+  level: trace
+  format: text
+
+secrets:
+  cookie:
+    - a-very-secret-cookie-secret-that-is-at-least-32-chars
+  cipher:
+    - "14045489523792573649899411101231" 
+
+hashers:
+  argon2:
+    parallelism: 1
+    memory: 128MB
+    iterations: 2
+    salt_length: 16
+    key_length: 16
+
+cookies:
+  domain: localhost
+  path: /
+  same_site: Lax
+
+courier:
+  smtp:
+    connection_uri: smtps://test:test@mailslurper:1025/?skip_ssl_verify=true
