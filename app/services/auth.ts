@@ -33,6 +33,7 @@ function proxyUrl(url: string): string {
 
 export const authService = {
     async login(identifier: string, password: string) {
+        console.log("PLATFORM DETECTED:", Platform.OS);
         console.log("Starting login for:", identifier);
 
         // Use browser flow for web, API flow for mobile
@@ -43,7 +44,7 @@ export const authService = {
         console.log("Fetching flow from:", flowEndpoint);
         const flowRes = await fetch(flowEndpoint, {
             headers: { "Accept": "application/json" },
-            credentials: "include",
+            credentials: Platform.OS === "web" ? "include" : "omit",
         });
 
         console.log("Flow response status:", flowRes.status);
@@ -61,20 +62,27 @@ export const authService = {
             body.csrf_token = csrfToken;
         }
 
-        const submitUrl = proxyUrl(flow.ui.action);
+        // For API flows, construct URL with flow ID
+        // For browser flows, use the action URL
+        const submitUrl = Platform.OS === "web"
+            ? proxyUrl(flow.ui.action)
+            : `${AUTH_URL}/self-service/login?flow=${flow.id}`;
+
         console.log("Submitting to:", submitUrl);
         console.log("Body:", { ...body, password: "***" });
 
         const loginRes = await fetch(submitUrl, {
             method: "POST",
             headers: { "Content-Type": "application/json", "Accept": "application/json" },
-            credentials: "include",
+            credentials: Platform.OS === "web" ? "include" : "omit",
             body: JSON.stringify(body),
         });
 
         console.log("Login response status:", loginRes.status);
         const data = await loginRes.json();
         console.log("Login response data:", data);
+        console.log("UI Messages:", JSON.stringify(data.ui?.messages, null, 2));
+        console.log("UI Nodes:", JSON.stringify(data.ui?.nodes, null, 2));
 
         if (!loginRes.ok) throw new Error(extractErrors(data));
 
@@ -92,7 +100,7 @@ export const authService = {
 
         const flowRes = await fetch(flowEndpoint, {
             headers: { "Accept": "application/json" },
-            credentials: "include",
+            credentials: Platform.OS === "web" ? "include" : "omit",
         });
         if (!flowRes.ok) throw new Error("Failed to initialize registration");
         const flow = await flowRes.json();
@@ -105,10 +113,16 @@ export const authService = {
             body.csrf_token = csrfToken;
         }
 
-        const registerRes = await fetch(proxyUrl(flow.ui.action), {
+        // For API flows, construct URL with flow ID
+        // For browser flows, use the action URL
+        const submitUrl = Platform.OS === "web"
+            ? proxyUrl(flow.ui.action)
+            : `${AUTH_URL}/self-service/registration?flow=${flow.id}`;
+
+        const registerRes = await fetch(submitUrl, {
             method: "POST",
             headers: { "Content-Type": "application/json", "Accept": "application/json" },
-            credentials: "include",
+            credentials: Platform.OS === "web" ? "include" : "omit",
             body: JSON.stringify(body),
         });
         const data = await registerRes.json();

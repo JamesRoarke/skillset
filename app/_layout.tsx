@@ -1,94 +1,57 @@
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { StatusBar } from 'expo-status-bar';
-import { useFonts } from 'expo-font';
-import { Stack, useRouter, useSegments } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
-import 'react-native-reanimated';
-import '../global.css';
-import { useColorScheme } from '@/components/useColorScheme';
-import { AuthProvider, useAuthContext } from './contexts/AuthContext';
+import { Stack, useRouter, useSegments } from "expo-router";
+import { AuthProvider, useAuthContext } from "./contexts/AuthContext";
+import { useEffect } from "react";
+import { View } from "react-native";
+import GlassBottomNav from "./components/Navigation/GlassBottomNav";
 
-export {
-  ErrorBoundary,
-} from 'expo-router';
+function RootLayoutNav() {
+  const { isAuthenticated, loading } = useAuthContext();
+  const segments = useSegments();
+  const router = useRouter();
 
-export const unstable_settings = {
-  initialRouteName: 'login',
-};
+  useEffect(() => {
+    if (loading) return;
 
-SplashScreen.preventAutoHideAsync();
+    console.log("Layout auth check:", { isAuthenticated, loading, segments });
+
+    const inAuthGroup = segments[0] === "login" || segments[0] === "signup";
+
+    if (!isAuthenticated && !inAuthGroup) {
+      // Not authenticated and not on login/signup -> go to login
+      router.replace("/login");
+    } else if (isAuthenticated && inAuthGroup) {
+      // Authenticated and on login/signup -> go to home
+      console.log("Redirecting to home");
+      router.replace("/home");
+    } else if (isAuthenticated && !segments[0]) {
+      // Authenticated but no route (shouldn't happen, but just in case)
+      router.replace("/home");
+    }
+  }, [isAuthenticated, loading, segments]);
+
+  // Show navigation only on authenticated screens (not login/signup)
+  const showNav = isAuthenticated && segments[0] !== "login" && segments[0] !== "signup";
+
+  return (
+    <View style={{ flex: 1 }}>
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="login" />
+        <Stack.Screen name="signup" />
+        <Stack.Screen name="home" />
+        <Stack.Screen name="barns" />
+        <Stack.Screen name="horselist" />
+      </Stack>
+
+      {/* Global Bottom Navigation */}
+      {showNav && <GlassBottomNav />}
+    </View>
+  );
+}
 
 export default function RootLayout() {
-  const [loaded, error] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-    ...FontAwesome.font,
-  });
-
-  useEffect(() => {
-    if (error) throw error;
-  }, [error]);
-
-  useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded]);
-
-  if (!loaded) {
-    return null;
-  }
-
   return (
     <AuthProvider>
       <RootLayoutNav />
     </AuthProvider>
-  );
-}
-
-function RootLayoutNav() {
-  const colorScheme = useColorScheme();
-  const { isAuthenticated, loading } = useAuthContext();
-  const router = useRouter();
-  const segments = useSegments();
-
-  const CustomLightTheme = {
-    ...DefaultTheme,
-    colors: {
-      ...DefaultTheme.colors,
-      background: '#f5f5f5',
-      card: '#ffffff',
-      text: '#222',
-      border: '#e0e0e0',
-      notification: '#ff9800',
-    },
-  };
-
-  useEffect(() => {
-    console.log("Layout auth check:", { loading, isAuthenticated, segments });
-    if (loading) return;
-
-    const inAuthGroup = segments[0] === 'login' || segments[0] === 'signup';
-
-    if (!isAuthenticated && !inAuthGroup) {
-      console.log("Redirecting to login");
-      router.replace('/login');
-    } else if (isAuthenticated && inAuthGroup) {
-      console.log("Redirecting to home");
-      router.replace('/home');
-    }
-  }, [isAuthenticated, segments, loading]);
-
-  return (
-    <ThemeProvider value={CustomLightTheme}>
-      <StatusBar style="dark" />
-      <Stack>
-        <Stack.Screen name="login" options={{ headerShown: false }} />
-        <Stack.Screen name="signup" options={{ headerShown: false }} />
-        <Stack.Screen name="home" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-      </Stack>
-    </ThemeProvider>
   );
 }

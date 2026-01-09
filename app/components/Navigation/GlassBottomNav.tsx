@@ -11,10 +11,11 @@ type NavItem = {
 };
 
 const navItems: NavItem[] = [
-    { name: 'Home', icon: 'home-outline', path: '/' },
+    { name: 'Home', icon: 'apps-outline', path: '/home' },
+    { name: 'Barn', icon: 'home-outline', path: '/barns' },
+    { name: 'Add Post', icon: 'add-circle-outline', path: '/add-post' },
     { name: 'Search', icon: 'search-outline', path: '/search' },
     { name: 'Profile', icon: 'person-outline', path: '/profile' },
-    { name: 'Settings', icon: 'settings-outline', path: '/settings' },
 ];
 
 export default function GlassBottomNav() {
