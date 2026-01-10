@@ -14,7 +14,7 @@ const navItems: NavItem[] = [
     { name: 'Home', icon: 'apps-outline', path: '/home' },
     { name: 'Barn', icon: 'home-outline', path: '/barns' },
     { name: 'Add Post', icon: 'add-circle-outline', path: '/add-post' },
-    { name: 'Search', icon: 'search-outline', path: '/search' },
+    { name: 'Market Place', icon: 'bag-handle-outline', path: '/marketplace' },
     { name: 'Profile', icon: 'person-outline', path: '/profile' },
 ];
 

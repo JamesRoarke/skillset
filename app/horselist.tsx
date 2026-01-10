@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useAuthContext } from "./contexts/AuthContext";
 import { View, Text, Button, ActivityIndicator, ScrollView, TouchableOpacity, StyleSheet, TextInput } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 
 export default function HorseList() {
     const { isAuthenticated, loading, user, logout } = useAuthContext();
@@ -191,7 +192,11 @@ export default function HorseList() {
                                                     <Ionicons name="time-outline" size={14} color="#64748b" />
                                                     <Text style={styles.historyButtonText}>TRACK HISTORY</Text>
                                                 </TouchableOpacity>
-                                                <TouchableOpacity style={styles.reportButton} activeOpacity={0.7}>
+                                                <TouchableOpacity
+                                                    style={styles.reportButton}
+                                                    activeOpacity={0.7}
+                                                    onPress={() => router.push(`/horses/${horse.id}`)}
+                                                >
                                                     <Ionicons name="document-text-outline" size={14} color="white" />
                                                     <Text style={styles.reportButtonText}>FULL REPORT</Text>
                                                 </TouchableOpacity>
@@ -210,6 +215,7 @@ export default function HorseList() {
 
 const styles = StyleSheet.create({
     container: {
+        marginTop: 40,
         flex: 1,
         backgroundColor: '#f8fafc',
     },

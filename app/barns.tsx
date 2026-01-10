@@ -1,26 +1,14 @@
 import { useState } from "react";
-import GlassBottomNav from "./components/Navigation/GlassBottomNav";
-import { useAuthContext } from "./contexts/AuthContext";
-import { View, Text, Button, ActivityIndicator, ScrollView, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useLocalSearchParams, useRouter } from "expo-router";
 
 export default function Barns() {
-    const { isAuthenticated, loading, user, logout } = useAuthContext();
-    if (loading) {
-        return (
-            <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-                <ActivityIndicator size="large" />
-            </View>
-        );
-    }
-    if (!isAuthenticated) {
-        return null;
-    }
-
-    const [view, setView] = useState('auth');
-    const [activeTab, setActiveTab] = useState('home');
-    const [selectedListing, setSelectedListing] = useState(null);
-    const [expandedTaskId, setExpandedTaskId] = useState(null);
+    const router = useRouter();
+    const { taskId } = useLocalSearchParams();
+    const [expandedTaskId, setExpandedTaskId] = useState(
+        taskId ? Number(taskId) : null  // Auto-expand if taskId is passed
+    );
 
     // State for task completion
     const [tasks, setTasks] = useState([
@@ -69,7 +57,7 @@ export default function Barns() {
             {/* Header */}
             <View style={styles.header}>
                 <TouchableOpacity
-                    onPress={() => setView('main-dashboard')}
+                    onPress={() => router.push("/home")}
                     style={styles.backButton}
                     activeOpacity={0.7}
                 >
@@ -255,6 +243,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#f8fafc',
     },
     header: {
+        marginTop: 40,
         padding: 16,
         flexDirection: 'row',
         alignItems: 'center',

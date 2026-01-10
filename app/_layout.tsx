@@ -40,6 +40,8 @@ function RootLayoutNav() {
         <Stack.Screen name="home" />
         <Stack.Screen name="barns" />
         <Stack.Screen name="horselist" />
+        <Stack.Screen name="horses/[id]" />
+        <Stack.Screen name="marketplace" />
       </Stack>
 
       {/* Global Bottom Navigation */}

@@ -116,7 +116,12 @@ export default function Home() {
                         <Text style={styles.sectionTitle}>UPCOMING TODAY</Text>
                         <View style={styles.tasksList}>
                             {tasks.map(t => (
-                                <View key={t.id} style={styles.taskCard}>
+                                <TouchableOpacity
+                                    key={t.id}
+                                    style={styles.taskCard}
+                                    onPress={() => router.push(`/barns?taskId=${t.id}`)}
+                                    activeOpacity={0.7}
+                                >
                                     <View style={styles.taskLeft}>
                                         <View style={[
                                             styles.taskDot,
@@ -125,7 +130,7 @@ export default function Home() {
                                         <Text style={styles.taskText}>{t.task}</Text>
                                     </View>
                                     <Text style={styles.taskTime}>{t.time}</Text>
-                                </View>
+                                </TouchableOpacity>
                             ))}
                         </View>
                     </View>
@@ -139,6 +144,7 @@ export default function Home() {
 
 const styles = StyleSheet.create({
     container: {
+        marginTop: 18,
         flex: 1,
         backgroundColor: '#f8fafc',
     },
