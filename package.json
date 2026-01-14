@@ -10,9 +10,16 @@
     "web": "expo start --web",
     "test": "jest --watchAll",
     "dev": "docker-compose up -d && npx expo start",
-    "start:services": "docker-compose up -d",
-    "stop:services": "docker-compose down",
-    "logs": "docker-compose logs -f"
+    "start-services": "docker-compose up -d && sleep 3 && echo '✅ Services started! Run npm run android or npm start'",
+    "stop-services": "docker-compose down",
+    "restart-services": "docker-compose restart",
+    "restart-proxy": "docker-compose restart proxy",
+    "reset-db": "docker-compose down -v && docker-compose up -d && echo '⚠️  Database reset! You need to create a new account.'",
+    "logs": "docker-compose logs -f",
+    "logs-proxy": "docker-compose logs -f proxy",
+    "logs-kratos": "docker-compose logs -f kratos",
+    "health": "curl -s http://localhost:3000/health && curl -s http://localhost:3000/kratos/self-service/login/api | head -c 100",
+    "fix-auth": "docker-compose restart proxy && sleep 2 && echo '🔧 Proxy restarted. Try logging in again.'"
   },
   "jest": {
     "preset": "jest-expo"

@@ -42,6 +42,8 @@ function RootLayoutNav() {
         <Stack.Screen name="horselist" />
         <Stack.Screen name="horses/[id]" />
         <Stack.Screen name="marketplace" />
+        <Stack.Screen name="profile" />
+        <Stack.Screen name="add-post" />
       </Stack>
 
       {/* Global Bottom Navigation */}
