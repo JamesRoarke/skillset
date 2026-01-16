@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useAuthContext } from "./contexts/AuthContext";
+import { useAuthContext } from "../../contexts/AuthContext";
 import { View, Text, Button, ActivityIndicator, ScrollView, TouchableOpacity, StyleSheet, TextInput } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -195,7 +195,7 @@ export default function HorseList() {
                                                 <TouchableOpacity
                                                     style={styles.reportButton}
                                                     activeOpacity={0.7}
-                                                    onPress={() => router.push(`/horses/${horse.id}`)}
+                                                    onPress={() => router.push(`/screens/horses/HorseDetailScreen?id=${horse.id}`)}
                                                 >
                                                     <Ionicons name="document-text-outline" size={14} color="white" />
                                                     <Text style={styles.reportButtonText}>FULL REPORT</Text>

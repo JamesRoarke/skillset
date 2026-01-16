@@ -1,4 +1,4 @@
-import config from "../config";
+import config from "../config/index";
 import storage, { STORAGE_KEYS } from "../utils/storage";
 import { Platform } from "react-native";
 

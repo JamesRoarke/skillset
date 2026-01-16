@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router';
 
 import { useState } from 'react';
-import CreatePostModal from './components/CreatePostModal';
+import CreatePostModal from '../../components/CreatePostModal';
 
 type CategoryKey = 'horses' | 'tack' | 'services' | 'jobs';
 
@@ -38,7 +38,7 @@ export default function AddPost() {
 
     return (
         <CreatePostModal
-            onClose={() => router.push("/marketplace")}
+            onClose={() => router.push("/screens/marketplace/MarketplaceScreen")}
             activeCategory={activeCategory}
             setActiveCategory={setActiveCategory}
             marketplaceData={marketplaceData}

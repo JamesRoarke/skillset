@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { View, TextInput, Button, Text, Image, ActivityIndicator } from "react-native";
 import { useRouter } from "expo-router";
-import { useAuthContext } from "./contexts/AuthContext";
+import { useAuthContext } from "../../contexts/AuthContext";
 
 export default function Login() {
     const router = useRouter();
@@ -17,7 +17,7 @@ export default function Login() {
     return (
         <View style={{ flex: 1, alignItems: "center", backgroundColor: "#f3f4f6", paddingTop: 80 }}>
             <Image
-                source={require("../assets/logo/skillset.png")}
+                source={require("../../../assets/logo/skillset.png")}
                 style={{ width: 250, height: 200, resizeMode: "contain", marginBottom: 24 }}
             />
 
@@ -60,7 +60,7 @@ export default function Login() {
 
             <Text
                 style={{ marginTop: 20, color: "#2563eb" }}
-                onPress={() => router.push("/signup" as any)}
+                onPress={() => router.push("/screens/signup/SignupScreen")}
             >
                 Don't have an account? Sign up
             </Text>

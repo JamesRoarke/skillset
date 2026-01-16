@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { useAuthContext } from "./contexts/AuthContext";
+import { useAuthContext } from "../../contexts/AuthContext";
 import { View, Text, Button, ActivityIndicator, ScrollView, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 
-export default function Home() {
+export default function HomeScreen() {
     const { isAuthenticated, loading, user, logout } = useAuthContext();
     const [view, setView] = useState('auth');
     const [activeTab, setActiveTab] = useState('home');
@@ -48,14 +48,14 @@ export default function Home() {
                 <View style={styles.mainContent}>
                     {/* Quick Stats Grid */}
                     <View style={styles.statsGrid}>
-                        <TouchableOpacity style={styles.statCard} onPress={() => router.push("/horselist")}>
+                        <TouchableOpacity style={styles.statCard} onPress={() => router.push("/screens/horselist/HorseListScreen")}>
                             <View style={[styles.statIconContainer, { backgroundColor: '#eef2ff' }]}>
                                 <Ionicons name="trending-up" size={20} color="#4f46e5" />
                             </View>
                             <Text style={styles.statLabel}>ACTIVE HORSES</Text>
                             <Text style={styles.statValue}>24</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.statCard} onPress={() => router.push("/barns")}>
+                        <TouchableOpacity style={styles.statCard} onPress={() => router.push("/screens/barns/BarnsScreen")}>
                             <View style={[styles.statIconContainer, { backgroundColor: '#ecfdf5' }]}>
                                 <Ionicons name="checkmark-circle" size={20} color="#059669" />
                             </View>
@@ -68,11 +68,11 @@ export default function Home() {
                     <View style={styles.section}>
                         <View style={styles.sectionHeader}>
                             <Text style={styles.sectionTitle}>BARN MANAGEMENT</Text>
-                            <TouchableOpacity onPress={() => router.push("/barns")}>
+                            <TouchableOpacity onPress={() => router.push("/screens/barns/BarnsScreen")}>
                                 <Text style={styles.sectionLink}>Open Dashboard</Text>
                             </TouchableOpacity>
                         </View>
-                        <TouchableOpacity style={styles.barnCard} onPress={() => router.push("/barns")}>
+                        <TouchableOpacity style={styles.barnCard} onPress={() => router.push("/screens/barns/BarnsScreen")}>
                             <View style={styles.barnIcon}>
                                 <Text style={styles.barnEmoji}>🏢</Text>
                             </View>
@@ -119,7 +119,7 @@ export default function Home() {
                                 <TouchableOpacity
                                     key={t.id}
                                     style={styles.taskCard}
-                                    onPress={() => router.push(`/barns?taskId=${t.id}`)}
+                                    onPress={() => router.push(`/screens/barns/BarnsScreen?taskId=${t.id}`)}
                                     activeOpacity={0.7}
                                 >
                                     <View style={styles.taskLeft}>

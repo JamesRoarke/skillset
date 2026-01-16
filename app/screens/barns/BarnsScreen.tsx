@@ -1,17 +1,48 @@
-import { useState } from "react";
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from "react-native";
+import React, { useState } from "react";
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, TextInput, Modal } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { Picker } from '@react-native-picker/picker';
+
+interface Task {
+    id: number;
+    task: string;
+    time: string;
+    status: 'completed' | 'pending';
+    details: string;
+    assigned: string;
+    priority: string;
+}
+
+interface StaffMember {
+    name: string;
+}
+
+const staffDetails: StaffMember[] = [
+    { name: 'Jessica W.' },
+    { name: 'Mike R.' },
+    { name: 'Sarah M.' },
+    { name: 'Tom K.' },
+];
 
 export default function Barns() {
     const router = useRouter();
     const { taskId } = useLocalSearchParams();
     const [expandedTaskId, setExpandedTaskId] = useState(
-        taskId ? Number(taskId) : null  // Auto-expand if taskId is passed
+        taskId ? Number(taskId) : null
     );
+    const [showStaffDropdown, setShowStaffDropdown] = useState(false);
+    const [isAddingTask, setIsAddingTask] = useState(false);
+    const [newTask, setNewTask] = useState({
+        task: '',
+        assignedTo: staffDetails[0].name,
+        time: '08:00 AM',
+        details: '',
+        priority: 'Normal'
+    });
 
     // State for task completion
-    const [tasks, setTasks] = useState([
+    const [tasks, setTasks] = useState<Task[]>([
         {
             id: 101,
             task: 'Morning Feed',
@@ -41,14 +72,38 @@ export default function Barns() {
         }
     ]);
 
-    const toggleTaskStatus = (id: any, e: any) => {
-        e.stopPropagation && e.stopPropagation(); // Prevent collapsing when clicking checkbox
+    const handleAddTask = () => {
+        if (!newTask.task.trim()) return;
+
+        const taskToAdd: Task = {
+            id: Date.now(),
+            task: newTask.task,
+            assigned: newTask.assignedTo,
+            time: newTask.time,
+            status: 'pending',
+            details: newTask.details,
+            priority: newTask.priority,
+        };
+
+        setTasks([taskToAdd, ...tasks]);
+        setIsAddingTask(false);
+        setNewTask({
+            task: '',
+            assignedTo: staffDetails[0].name,
+            time: '08:00 AM',
+            details: '',
+            priority: 'Normal'
+        });
+    };
+
+    const toggleTaskStatus = (id: number, e?: any) => {
+        e?.stopPropagation?.();
         setTasks(prev => prev.map(t =>
             t.id === id ? { ...t, status: t.status === 'completed' ? 'pending' : 'completed' } : t
         ));
     };
 
-    const toggleExpand = (id: any) => {
+    const toggleExpand = (id: number) => {
         setExpandedTaskId(expandedTaskId === id ? null : id);
     };
 
@@ -57,16 +112,20 @@ export default function Barns() {
             {/* Header */}
             <View style={styles.header}>
                 <TouchableOpacity
-                    onPress={() => router.push("/home")}
+                    onPress={() => router.push("/screens/home/HomeScreen")}
                     style={styles.backButton}
                     activeOpacity={0.7}
                 >
                     <Ionicons name="arrow-back" size={20} color="#64748b" />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>BARN MANAGEMENT</Text>
-                <View style={styles.avatar}>
-                    <Text style={styles.avatarEmoji}>👩‍🌾</Text>
-                </View>
+                <TouchableOpacity
+                    onPress={() => setIsAddingTask(true)}
+                    style={styles.addButton}
+                    activeOpacity={0.9}
+                >
+                    <Ionicons name="add" size={16} color="white" />
+                </TouchableOpacity>
             </View>
 
             <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
@@ -87,7 +146,10 @@ export default function Barns() {
 
                     {/* Section Header */}
                     <View style={styles.sectionHeader}>
-                        <Text style={styles.sectionTitle}>TODAY'S TASKS</Text>
+                        <View style={styles.sectionTitleContainer}>
+                            <Ionicons name="people" size={16} color="#94a3b8" />
+                            <Text style={styles.sectionTitle}>TODAY'S TASKS</Text>
+                        </View>
                         <TouchableOpacity style={styles.filterButton}>
                             <Ionicons name="filter" size={14} color="#64748b" />
                         </TouchableOpacity>
@@ -183,12 +245,14 @@ export default function Barns() {
                                                             styles.priorityBadge,
                                                             task.priority === 'Urgent' && styles.priorityUrgent,
                                                             task.priority === 'High' && styles.priorityHigh,
+                                                            task.priority === 'Medium' && styles.priorityMedium,
                                                             task.priority === 'Normal' && styles.priorityNormal,
                                                         ]}>
                                                             <Text style={[
                                                                 styles.priorityText,
                                                                 task.priority === 'Urgent' && styles.priorityTextUrgent,
                                                                 task.priority === 'High' && styles.priorityTextHigh,
+                                                                task.priority === 'Medium' && styles.priorityTextMedium,
                                                                 task.priority === 'Normal' && styles.priorityTextNormal,
                                                             ]}>
                                                                 {task.priority.toUpperCase()}
@@ -233,6 +297,151 @@ export default function Barns() {
                     </View>
                 </View>
             </ScrollView>
+
+            {/* Add Task Modal */}
+            <Modal
+                visible={isAddingTask}
+                animationType="slide"
+                transparent={true}
+                onRequestClose={() => setIsAddingTask(false)}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalContent}>
+                        <View style={styles.modalHeader}>
+                            <Text style={styles.modalTitle}>CREATE FACILITY TASK</Text>
+                            <TouchableOpacity onPress={() => setIsAddingTask(false)}>
+                                <Ionicons name="close" size={24} color="#94a3b8" />
+                            </TouchableOpacity>
+                        </View>
+
+                        <ScrollView style={styles.modalForm}>
+                            {/* Task Name */}
+                            <View style={styles.formGroup}>
+                                <Text style={styles.formLabel}>TASK NAME</Text>
+                                <TextInput
+                                    style={styles.input}
+                                    placeholder="Task Name (e.g. Clean Stall 4)"
+                                    value={newTask.task}
+                                    onChangeText={(text) => setNewTask({ ...newTask, task: text })}
+                                    placeholderTextColor="#94a3b8"
+                                />
+                            </View>
+
+                            {/* Details */}
+                            <View style={styles.formGroup}>
+                                <Text style={styles.formLabel}>DETAILS (OPTIONAL)</Text>
+                                <TextInput
+                                    style={[styles.input, styles.textArea]}
+                                    placeholder="Add notes or instructions..."
+                                    value={newTask.details}
+                                    onChangeText={(text) => setNewTask({ ...newTask, details: text })}
+                                    placeholderTextColor="#94a3b8"
+                                    multiline
+                                    numberOfLines={3}
+                                />
+                            </View>
+
+                            {/* Assignee and Time Row */}
+                            <View style={styles.formRow}>
+                                <View style={[styles.formGroup, styles.formGroupHalf]}>
+                                    <Text style={styles.formLabel}>ASSIGNEE</Text>
+                                    <View style={styles.dropdownWrapper}>
+                                        <TouchableOpacity
+                                            style={styles.dropdownButton}
+                                            onPress={() => setShowStaffDropdown(!showStaffDropdown)}
+                                        >
+                                            <Text style={styles.dropdownButtonText}>{newTask.assignedTo}</Text>
+                                            <Ionicons
+                                                name={showStaffDropdown ? "chevron-up" : "chevron-down"}
+                                                size={16}
+                                                color="#64748b"
+                                            />
+                                        </TouchableOpacity>
+
+                                        {showStaffDropdown && (
+                                            <View style={styles.dropdownList}>
+                                                {staffDetails.map((staff) => (
+                                                    <TouchableOpacity
+                                                        key={staff.name}
+                                                        style={[
+                                                            styles.dropdownItem,
+                                                            newTask.assignedTo === staff.name && styles.dropdownItemSelected
+                                                        ]}
+                                                        onPress={() => {
+                                                            setNewTask({ ...newTask, assignedTo: staff.name });
+                                                            setShowStaffDropdown(false);
+                                                        }}
+                                                    >
+                                                        <View style={styles.dropdownItemAvatar}>
+                                                            <Text style={styles.dropdownItemInitial}>
+                                                                {staff.name.split(' ')[0][0]}
+                                                            </Text>
+                                                        </View>
+                                                        <Text style={[
+                                                            styles.dropdownItemText,
+                                                            newTask.assignedTo === staff.name && styles.dropdownItemTextSelected
+                                                        ]}>
+                                                            {staff.name}
+                                                        </Text>
+                                                        {newTask.assignedTo === staff.name && (
+                                                            <Ionicons name="checkmark" size={16} color="#4f46e5" />
+                                                        )}
+                                                    </TouchableOpacity>
+                                                ))}
+                                            </View>
+                                        )}
+                                    </View>
+                                </View>
+
+                                <View style={[styles.formGroup, styles.formGroupHalf]}>
+                                    <Text style={styles.formLabel}>TIME</Text>
+                                    <TextInput
+                                        style={styles.input}
+                                        value={newTask.time}
+                                        onChangeText={(text) => setNewTask({ ...newTask, time: text })}
+                                        placeholder="08:00 AM"
+                                        placeholderTextColor="#94a3b8"
+                                    />
+                                </View>
+                            </View>
+
+                            {/* Priority */}
+                            <View style={styles.formGroup}>
+                                <Text style={styles.formLabel}>PRIORITY</Text>
+                                <View style={styles.priorityOptions}>
+                                    {['Normal', 'Medium', 'High', 'Urgent'].map((priority) => (
+                                        <TouchableOpacity
+                                            key={priority}
+                                            onPress={() => setNewTask({ ...newTask, priority })}
+                                            style={[
+                                                styles.priorityOption,
+                                                newTask.priority === priority && styles.priorityOptionSelected,
+                                            ]}
+                                        >
+                                            <Text
+                                                style={[
+                                                    styles.priorityOptionText,
+                                                    newTask.priority === priority && styles.priorityOptionTextSelected,
+                                                ]}
+                                            >
+                                                {priority}
+                                            </Text>
+                                        </TouchableOpacity>
+                                    ))}
+                                </View>
+                            </View>
+
+                            <TouchableOpacity
+                                onPress={handleAddTask}
+                                style={styles.submitButton}
+                                activeOpacity={0.9}
+                            >
+                                <Text style={styles.submitButtonText}>COMMIT TASK</Text>
+                            </TouchableOpacity>
+                        </ScrollView>
+                    </View>
+                </View>
+            </Modal>
         </View>
     );
 }
@@ -265,19 +474,21 @@ const styles = StyleSheet.create({
         textTransform: 'uppercase',
         letterSpacing: -0.5,
         color: '#0f172a',
+        flex: 1,
+        textAlign: 'center',
     },
-    avatar: {
+    addButton: {
         width: 40,
         height: 40,
-        backgroundColor: '#e0e7ff',
-        borderRadius: 20,
-        borderWidth: 2,
-        borderColor: 'white',
-        justifyContent: 'center',
+        backgroundColor: '#2563eb',
+        borderRadius: 12,
         alignItems: 'center',
-    },
-    avatarEmoji: {
-        fontSize: 18,
+        justifyContent: 'center',
+        shadowColor: '#2563eb',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 4,
     },
     scrollView: {
         flex: 1,
@@ -298,9 +509,13 @@ const styles = StyleSheet.create({
         marginBottom: 32,
         position: 'relative',
         overflow: 'hidden',
-        borderColor: '#acb0b4ff',
+        borderColor: '#e2e8f0',
         alignItems: 'center',
-        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.4)',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 4,
+        elevation: 2,
     },
     barnGlow: {
         position: 'absolute',
@@ -360,6 +575,11 @@ const styles = StyleSheet.create({
         marginBottom: 16,
         paddingHorizontal: 8,
     },
+    sectionTitleContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+    },
     sectionTitle: {
         fontSize: 10,
         fontWeight: '900',
@@ -379,10 +599,13 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
         borderRadius: 32,
         borderWidth: 1,
-        borderColor: '#acb0b4ff',
-        alignItems: 'center',
-        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.4)',
+        borderColor: '#e2e8f0',
         overflow: 'hidden',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 2,
+        elevation: 1,
     },
     taskCardExpanded: {
         borderColor: '#e0e7ff',
@@ -541,6 +764,10 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff7ed',
         borderColor: '#fed7aa',
     },
+    priorityMedium: {
+        backgroundColor: '#fef9c3',
+        borderColor: '#fde68a',
+    },
     priorityNormal: {
         backgroundColor: '#f1f5f9',
         borderColor: '#e2e8f0',
@@ -548,13 +775,15 @@ const styles = StyleSheet.create({
     priorityText: {
         fontSize: 10,
         fontWeight: '900',
-        letterSpacing: -0.5,
     },
     priorityTextUrgent: {
         color: '#dc2626',
     },
     priorityTextHigh: {
         color: '#ea580c',
+    },
+    priorityTextMedium: {
+        color: '#ca8a04',
     },
     priorityTextNormal: {
         color: '#64748b',
@@ -604,5 +833,192 @@ const styles = StyleSheet.create({
     },
     completeButtonTextInactive: {
         color: '#64748b',
+    },
+    // Modal Styles
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        justifyContent: 'flex-end',
+    },
+    modalContent: {
+        backgroundColor: 'white',
+        borderTopLeftRadius: 24,
+        borderTopRightRadius: 24,
+        maxHeight: '85%',
+        borderWidth: 1,
+        borderColor: '#dbeafe',
+        shadowColor: '#2563eb',
+        shadowOffset: { width: 0, height: -4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 12,
+        elevation: 10,
+    },
+    modalHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: 24,
+        borderBottomWidth: 1,
+        borderBottomColor: '#f1f5f9',
+    },
+    modalTitle: {
+        fontSize: 10,
+        fontWeight: '700',
+        color: '#0f172a',
+        letterSpacing: 2,
+    },
+    modalForm: {
+        padding: 24,
+    },
+    formGroup: {
+        marginBottom: 20,
+    },
+    formGroupHalf: {
+        flex: 1,
+    },
+    formLabel: {
+        fontSize: 9,
+        fontWeight: '700',
+        color: '#94a3b8',
+        letterSpacing: 1,
+        marginBottom: 8,
+        marginLeft: 4,
+    },
+    input: {
+        backgroundColor: '#f8fafc',
+        borderWidth: 1,
+        borderColor: '#e2e8f0',
+        borderRadius: 12,
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+        fontSize: 14,
+        color: '#0f172a',
+    },
+    textArea: {
+        minHeight: 80,
+        textAlignVertical: 'top',
+    },
+    formRow: {
+        flexDirection: 'row',
+        gap: 12,
+    },
+    dropdownWrapper: {
+        position: 'relative',
+        zIndex: 1000,
+    },
+    dropdownButton: {
+        backgroundColor: '#f8fafc',
+        borderWidth: 1,
+        borderColor: '#e2e8f0',
+        borderRadius: 12,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: 12,
+        paddingHorizontal: 12,
+    },
+    dropdownButtonText: {
+        fontSize: 12,
+        fontWeight: '700',
+        color: '#0f172a',
+    },
+    dropdownList: {
+        position: 'absolute',
+        top: 52,
+        left: 0,
+        right: 0,
+        backgroundColor: 'white',
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: '#e2e8f0',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 12,
+        elevation: 5,
+        maxHeight: 200,
+        zIndex: 1001,
+    },
+    dropdownItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 12,
+        gap: 8,
+        borderBottomWidth: 1,
+        borderBottomColor: '#f1f5f9',
+    },
+    dropdownItemSelected: {
+        backgroundColor: '#f8fafc',
+    },
+    dropdownItemAvatar: {
+        width: 28,
+        height: 28,
+        backgroundColor: '#e0e7ff',
+        borderRadius: 14,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    dropdownItemInitial: {
+        fontSize: 12,
+        fontWeight: '700',
+        color: '#4338ca',
+    },
+    dropdownItemText: {
+        flex: 1,
+        fontSize: 12,
+        fontWeight: '600',
+        color: '#475569',
+    },
+    dropdownItemTextSelected: {
+        color: '#0f172a',
+        fontWeight: '700',
+    },
+    pickerText: {
+        fontSize: 12,
+        fontWeight: '700',
+        color: '#0f172a',
+    },
+    priorityOptions: {
+        flexDirection: 'row',
+        gap: 8,
+        flexWrap: 'wrap',
+    },
+    priorityOption: {
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: '#e2e8f0',
+        backgroundColor: '#f8fafc',
+    },
+    priorityOptionSelected: {
+        backgroundColor: '#4f46e5',
+        borderColor: '#4f46e5',
+    },
+    priorityOptionText: {
+        fontSize: 12,
+        fontWeight: '700',
+        color: '#64748b',
+    },
+    priorityOptionTextSelected: {
+        color: 'white',
+    },
+    submitButton: {
+        backgroundColor: '#0f172a',
+        paddingVertical: 12,
+        borderRadius: 12,
+        alignItems: 'center',
+        marginTop: 8,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
+    },
+    submitButtonText: {
+        fontSize: 10,
+        fontWeight: '700',
+        color: 'white',
+        letterSpacing: 2,
     },
 });

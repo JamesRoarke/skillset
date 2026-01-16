@@ -14,36 +14,38 @@ function RootLayoutNav() {
 
     console.log("Layout auth check:", { isAuthenticated, loading, segments });
 
-    const inAuthGroup = segments[0] === "login" || segments[0] === "signup";
+    const inAuthGroup = String(segments[0]) === "login" || String(segments[0]) === "signup";
 
     if (!isAuthenticated && !inAuthGroup) {
       // Not authenticated and not on login/signup -> go to login
-      router.replace("/login");
+      router.replace("/screens/login/LoginScreen");
     } else if (isAuthenticated && inAuthGroup) {
       // Authenticated and on login/signup -> go to home
       console.log("Redirecting to home");
-      router.replace("/home");
+      router.replace("/screens/home/HomeScreen");
     } else if (isAuthenticated && !segments[0]) {
       // Authenticated but no route (shouldn't happen, but just in case)
-      router.replace("/home");
+      router.replace("/screens/home/HomeScreen");
     }
   }, [isAuthenticated, loading, segments]);
 
   // Show navigation only on authenticated screens (not login/signup)
-  const showNav = isAuthenticated && segments[0] !== "login" && segments[0] !== "signup";
+  const showNav = isAuthenticated && String(segments[0]) !== "login" && String(segments[0]) !== "signup";
 
   return (
     <View style={{ flex: 1 }}>
       <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="login" />
-        <Stack.Screen name="signup" />
-        <Stack.Screen name="home" />
-        <Stack.Screen name="barns" />
-        <Stack.Screen name="horselist" />
-        <Stack.Screen name="horses/[id]" />
-        <Stack.Screen name="marketplace" />
-        <Stack.Screen name="profile" />
-        <Stack.Screen name="add-post" />
+        <Stack.Screen name="screens/login/LoginScreen" />
+        <Stack.Screen name="screens/signup/SignupScreen" />
+        <Stack.Screen name="screens/home/HomeScreen" />
+        <Stack.Screen name="screens/barns/Barns" />
+        <Stack.Screen name="screens/horselist/HorseList" />
+        <Stack.Screen name="screens/horses/[id]" />
+        <Stack.Screen name="screens/marketplace/Marketplace" />
+        <Stack.Screen name="screens/profile/Profile" />
+        <Stack.Screen name="screens/add-post/AddPost" />
+        <Stack.Screen name="screens/barnsInfo/BarnsInfo" />
+        <Stack.Screen name="screens/sponsorPerformanceStats/SponsorPerformanceStats" />
       </Stack>
 
       {/* Global Bottom Navigation */}

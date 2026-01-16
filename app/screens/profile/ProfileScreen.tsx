@@ -80,7 +80,7 @@ export default function Profile() {
                     {/* Barn Affiliation */}
                     <View style={styles.section}>
                         <Text style={styles.sectionTitle}>CURRENT STABLES</Text>
-                        <TouchableOpacity style={styles.barnCard}>
+                        <TouchableOpacity style={styles.barnCard} onPress={() => router.push("/screens/barnsInfo/BarnsInfoScreen")}>
                             <View style={styles.barnCardLeft}>
                                 <View style={styles.barnIcon}>
                                     <Ionicons name="shield-checkmark" size={24} color="white" />
@@ -158,7 +158,7 @@ export default function Profile() {
                                             </View>
                                         </View>
                                     </View>
-                                    <TouchableOpacity style={styles.sponsorButton}>
+                                    <TouchableOpacity style={styles.sponsorButton} onPress={() => router.push("/screens/marketplace/sponsorPerformanceStats")}>
                                         <Ionicons name="bar-chart-outline" size={14} color="white" />
                                         <Text style={styles.sponsorButtonText}>PERFORMANCE STATS</Text>
                                     </TouchableOpacity>
@@ -773,6 +773,7 @@ const styles = StyleSheet.create({
         borderRadius: 16,
         borderWidth: 1,
         borderColor: '#fecaca',
+        cursor: 'pointer',
     },
     logoutText: {
         fontSize: 10,

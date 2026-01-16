@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { View, TextInput, Button, Text, ScrollView, ActivityIndicator } from "react-native";
 import { useRouter } from "expo-router";
-import useAuth from "./hooks/useAuth";
+import useAuth from "../../hooks/useAuth";
 
 export default function Signup() {
     const router = useRouter();
@@ -16,9 +16,9 @@ export default function Signup() {
         if (success) {
             // If auto-login happened, go to home; otherwise go to login
             if (isAuthenticated) {
-                router.replace("/home" as any);
+                router.replace("/screens/home/HomeScreen");
             } else {
-                router.push("/login");
+                router.push("/screens/login/LoginScreen");
             }
         }
     };
@@ -80,7 +80,7 @@ export default function Signup() {
 
             <Text
                 style={{ marginTop: 20, color: "#2563eb" }}
-                onPress={() => !loading && router.push("/login")}
+                onPress={() => !loading && router.push("/screens/login/LoginScreen")}
             >
                 Already have an account? Log in
             </Text>

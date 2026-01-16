@@ -11,11 +11,11 @@ type NavItem = {
 };
 
 const navItems: NavItem[] = [
-    { name: 'Home', icon: 'apps-outline', path: '/home' },
-    { name: 'Barn', icon: 'home-outline', path: '/barns' },
-    { name: 'Add Post', icon: 'add-circle-outline', path: '/add-post' },
-    { name: 'Market Place', icon: 'bag-handle-outline', path: '/marketplace' },
-    { name: 'Profile', icon: 'person-outline', path: '/profile' },
+    { name: 'Home', icon: 'apps-outline', path: '/screens/home/HomeScreen' },
+    { name: 'Barn', icon: 'home-outline', path: '/screens/barns/BarnsScreen' },
+    { name: 'Add Post', icon: 'add-circle-outline', path: '/screens/add-post/AddPostScreen' },
+    { name: 'Market Place', icon: 'bag-handle-outline', path: '/screens/marketplace/MarketplaceScreen' },
+    { name: 'Profile', icon: 'person-outline', path: '/screens/profile/ProfileScreen' },
 ];
 
 export default function GlassBottomNav() {
